@@ -1,3 +1,0 @@
-# Don't modify any files, Blazor WASM checks file hashes before starting, changing the CRLF of text files will corrupt
-# the file hashes
-* binary
