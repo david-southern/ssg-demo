@@ -1,0 +1,10 @@
+/* /Pages/SystemDisplay.razor.rz.scp.css */
+.property-grid[b-6zjc39v5nx] {
+  width: 300px;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  column-gap: 7px;
+  row-gap: 7px;
+}
+
+/*# sourceMappingURL=SystemDisplay.razor.css.map */
