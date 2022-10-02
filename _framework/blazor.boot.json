@@ -31,7 +31,7 @@
       "MudBlazor.dll": "sha256-Y+Y8MBf+5JKBsAMY\/RabwqnJzbIppu8jAQ+V70Tn\/L4=",
       "netstandard.dll": "sha256-Wbx+jBmYZ7QvZUdUFIxXLPMO7GrV2dWK7b6UzZhpv2g=",
       "Newtonsoft.Json.dll": "sha256-cs8pHUurDt0IqbB8YXPh560au3q3J\/1wRL9jBddRVmE=",
-      "SSG.Client.dll": "sha256-IdO6zsL5M9DsF5qrCXWW4BtpELHK5m2OJuWMAvaAXvc=",
+      "SSG.Client.dll": "sha256-wdisi3zfxv+KGlTTWdXtIrc5K3wprm7T2DyvCZ9\/82k=",
       "System.Collections.Concurrent.dll": "sha256-jk1miooAOPyJf+EDpgaQwvzpWleL2Cp11vzfuBkhzZU=",
       "System.Collections.dll": "sha256-aO8Nd5Xg3G5+KgXvW4CbrX5PLg\/1gQ691DJ6LWAxrek=",
       "System.Collections.NonGeneric.dll": "sha256-lyVP0XvwjOPuGXPrPW5y2w9nghInwDm8q9iA46l66PA=",
@@ -76,8 +76,7 @@
     "pdb": null,
     "runtime": {
       "dotnet.6.0.9.vaamfmqbds.js": "sha256-aAvjhjMNMDiw7wyadWR38DJqVJ0os8oSwXzwrVbma8U=",
-      "dotnet.timezones.blat": "sha256-DCornv7RwGmh5F2M7NdY9Sg66xjw779ggSN9nS\/Br5o=",
-      "dotnet.wasm": "sha256-8kkSf5UavxuO0dsxqd+QTrW90FGe413hEaswXtPDqbs="
+      "dotnet.wasm": "sha256-a5w6vi\/dLvNK7ZU\/oBmU63+8WbWpdXft2s0dYM\/eebg="
     },
     "satelliteResources": null
   }
