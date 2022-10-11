@@ -4,6 +4,16 @@ export const GRID_TYPE_RECTANGULAR = 'Rectangular';
 export const GRID_TYPE_POLAR = 'Polar';
 export const GRID_TYPE_NONE = 'None';
 
+
+export class BackgroundImageData {
+    public URL?: string;
+    public Brightness?: number;
+    public Contrast?: number;
+    public Lighten?: number;
+    public Darken?: number;
+    public Blur?: number;
+}
+
 export class SSGSettings {
     public AmbientLightColor = "#ff00ff";
     public AmbientLightIntensity = 1;
@@ -42,6 +52,10 @@ export class SSGSettings {
     public Zoom = 1;
 
     public ResetOrbitControls = false;
+    public DownloadImage = false;
+    public LookAt?: string;
+
+    public BackgroundImage?: BackgroundImageData;
 
     constructor(partialObj: Partial<SSGSettings>) {
         if (partialObj) {

@@ -11,13 +11,20 @@ export class CelestialObject {
     ChildObjects: CelestialObject[] = [];
     OrbitalSemiMajorAxis: number = 0;
     OrbitalSemiMinorAxis: number = 0;
+    OrbitalPerigee: number = 0;
     OrbitalVelocity: number = 0;
-    ObjectMass: number = 0;
+    InitialOrbitalAngle: number = 0;
     ObjectRadius: number = 0;
     OrbitalInclination: number = 0;
     PhaseAngle: number = 0;
     ObjectColor: string = null!;
     OrbitalColor: string = null!;
+
+    RingInnerRadius?: number;
+    RingWidth?: number;
+    RingDensity?: number;
+    RingColor?: string;
+
 
     Obj3D?: THREE.Object3D;
 

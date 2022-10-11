@@ -7,4 +7,15 @@
   row-gap: 7px;
 }
 
+#ssgCanvas[b-6zjc39v5nx] {
+  position: relative;
+}
+
+#systemTime[b-6zjc39v5nx] {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  color: green;
+}
+
 /*# sourceMappingURL=SystemDisplay.razor.css.map */

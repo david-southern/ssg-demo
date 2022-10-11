@@ -104,6 +104,7 @@ export class Utils {
     public static buildPlanet(x: number, y: number, z: number, radius: number, color: string) {
         const geometry = new THREE.SphereGeometry(radius, 32, 16);
         const sphere = new THREE.Mesh(geometry, Utils.planetMaterial(color));
+
         Utils.setPosition(sphere, x, y, z);
 
         return sphere;
@@ -118,6 +119,12 @@ export class Utils {
         const geometry = new THREE.SphereGeometry(radius, 32, 16);
         const sphere = new THREE.Mesh(geometry, Utils.starMaterial(color));
         Utils.setPosition(sphere, x, y, z);
+
+        pointLight.castShadow = true;
+        pointLight.shadow.mapSize.width = 512; // default
+        pointLight.shadow.mapSize.height = 512; // default
+        pointLight.shadow.camera.near = 0.5; // default
+        pointLight.shadow.camera.far = 500; // default        
 
         starGroup.add(sphere);
 
@@ -149,40 +156,56 @@ export class Utils {
      * @returns 
      */
     public static humanTime(totalSeconds: number): string {
+        class ScaleFactor {
+            public factor: number = null!;
+            public unit: string = null!;
+            public singularSuffix?: string;
+            public pluralSuffix?: string;
+        }
+
         // Yes, I know about Humanizr, but they don't have this format...
-        let scaleFactors = [
+        let scaleFactors: ScaleFactor[] = [
             { factor: 60, unit: "minute" },
             { factor: 60, unit: "hour" },
             { factor: 24, unit: "day" },
             { factor: 365, unit: "year" },
             { factor: 10, unit: "decade" },
-            { factor: 10, unit: "century" }
+            { factor: 10, unit: "centur", singularSuffix: "y", pluralSuffix: "ies" }
         ];
 
-        let retTime = totalSeconds;
-        let retUnit = "seconds";
+        let sign = totalSeconds < 0 ? "-" : "";
+        let retTime = Math.abs(totalSeconds);
+        let retUnit = "second";
+        let singularSuffix = "";
+        let pluralSuffix = "s";
 
-        const nextScale = (factor: number, newUnit: string): boolean => {
-            if (retTime > factor) {
-                retTime /= factor;
-                retUnit = newUnit;
+        const checkScale = (scale: ScaleFactor): boolean => {
+            if (retTime > scale.factor) {
+                retTime /= scale.factor;
+                retUnit = scale.unit;
+                singularSuffix = scale.singularSuffix ?? singularSuffix;
+                pluralSuffix = scale.pluralSuffix ?? pluralSuffix;
                 return true;
             }
             return false;
         }
 
         for (const nextFactor of scaleFactors) {
-            if (!nextScale(nextFactor.factor, nextFactor.unit)) {
+            if (!checkScale(nextFactor)) {
                 break;
             }
         }
 
-        return `${retTime.toFixed(3)} ${retUnit}${(retTime == 1) ? '' : 's'}`;
+        return `${retTime.toFixed(3)} ${retUnit}${(Utils.FloatEQ(retTime, 1, 0.0005)) ? singularSuffix : pluralSuffix}`;
     }
 
-    public static  async downloadFileFromStream(fileName: string, contentStreamReference: any) {
+    public static async downloadFileFromStream(fileName: string, contentStreamReference: any) {
         const arrayBuffer = await contentStreamReference.arrayBuffer();
         const blob = new Blob([arrayBuffer]);
+        Utils.downloadFileFromBlob(fileName, arrayBuffer);
+    }
+
+    public static async downloadFileFromBlob(fileName: string, blob: Blob) {
         const url = URL.createObjectURL(blob);
         const anchorElement = document.createElement('a');
         anchorElement.href = url;
@@ -190,5 +213,86 @@ export class Utils {
         anchorElement.click();
         anchorElement.remove();
         URL.revokeObjectURL(url);
+    }
+
+    /**
+     * Tests if value1 and value2 are exactly the same float value, or if either is Infinite or Nan, then if they are
+     * both the same Infinite or Nan value.
+     */
+    private static SimpleFloatEQ(value1: number, value2: number): boolean {
+        if (typeof value1 !== 'number' || typeof value2 !== 'number') {
+            return false;
+        }
+
+        if (!Number.isFinite(value1) || !Number.isFinite(value2)) {
+            return value1 === value2;
+        }
+
+        return false;
+    }
+
+    /**
+     * Return an appropriate divisor for the FloatXX methods.  The divisor will always be positive.
+     */
+    public static FloatEQDivisor(value1: number, value2: number): number {
+        // Handle zero to avoid division by zero
+        let divisor = Math.max(value1, value2);
+        if (divisor === 0) {
+            divisor = Math.min(value1, value2);
+        }
+
+        return divisor < 0 ? -divisor : divisor;
+    }
+
+    // From the .Net Single docs: https://learn.microsoft.com/en-us/dotnet/api/system.single?view=net-6.0
+    // Single.Epsilon is sometimes used as an absolute measure of the distance between two Single values when
+    // testing for equality. However, Single.Epsilon measures the smallest possible value that can be added to, or
+    // subtracted from, a Single whose value is zero. For most positive and negative Single values, the value of
+    // Single.Epsilon is too small to be detected. Therefore, except for values that are zero, we do not recommend
+    // its use in tests for equality.
+    public static FloatingPointEqualityEpsilon = Number.EPSILON * 100;
+
+    public static FloatEQ(value1: number, value2: number, epsilon = Utils.FloatingPointEqualityEpsilon): boolean {
+        if (Utils.SimpleFloatEQ(value1, value2)) {
+            return true;
+        }
+
+        const divisor = Utils.FloatEQDivisor(value1, value2);
+
+        return Math.abs(value1 - value2) / divisor <= epsilon;
+    }
+
+    public static FloatNE(value1: number, value2: number, epsilon = Utils.FloatingPointEqualityEpsilon): boolean {
+        return !Utils.FloatEQ(value1, value2, epsilon);
+    }
+
+    public static FloatLT(value1: number, value2: number, epsilon = Utils.FloatingPointEqualityEpsilon): boolean {
+        if (Utils.SimpleFloatEQ(value1, value2)) {
+            return false;
+        }
+
+        const divisor = Utils.FloatEQDivisor(value1, value2);
+
+        return (value1 - value2) / divisor < -epsilon;
+    }
+
+    public static FloatGT(value1: number, value2: number, epsilon = Utils.FloatingPointEqualityEpsilon): boolean {
+        if (Utils.SimpleFloatEQ(value1, value2)) {
+            return false;
+        }
+
+        const divisor = Utils.FloatEQDivisor(value1, value2);
+
+
+        return (value1 - value2) / divisor > epsilon;
+    }
+
+
+    public static FloatLE(value1: number, value2: number, epsilon = Utils.FloatingPointEqualityEpsilon): boolean {
+        return Utils.SimpleFloatEQ(value1, value2) || Utils.FloatLT(value1, value2, -epsilon);
+    }
+
+    public static FloatGE(value1: number, value2: number, epsilon = Utils.FloatingPointEqualityEpsilon): boolean {
+        return Utils.SimpleFloatEQ(value1, value2) || Utils.FloatGT(value1, value2, -epsilon);
     }
 }

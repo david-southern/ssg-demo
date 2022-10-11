@@ -12,8 +12,9 @@ class LoggerImpl {
     private filteredSystems = new Map<SSGSystemFilter, boolean>();
 
     constructor() {
+        // this.filterSystem(SSGSystemFilter.RenderSettings, false);
+
         this.filterSystem(SSGSystemFilter.Initialization, false);
-        this.filterSystem(SSGSystemFilter.RenderSettings, false);
         this.filterSystem(SSGSystemFilter.RenderDiagnostics, false);
         this.filterSystem(SSGSystemFilter.ExportDiagnostics, false);
         this.filterSystem(SSGSystemFilter.ModelBuilding, false);
