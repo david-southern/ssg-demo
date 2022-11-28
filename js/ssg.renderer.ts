@@ -503,9 +503,76 @@ export class SSGRenderer {
         const sceneGroup = new THREE.Group();
         sceneGroup.name = `${rootObject.Name}-root`;
 
+        // Calculate the minorAxis and focalOffset from Alex's orbital calcs spreadsheet.
+        // * Note: I'm using Alex's OrbitalX calculation to get the focal offset (the orbital X position at angularPos
+        //   == 0 minus the semi-major axis).  Alex also shows how to calculate the OrbitalY and OrbitalZ positions as
+        //   well.  For now, I'll continue using the THREEjs rotation transformations, as I already have that coded into
+        //   the Orbiter class. At some point I should switch to use Alex's position equations, as they account for all
+        //   three rotations (yaw, pitch, and roll) while my THREEjs implenetation only handles pitce
+        //   (OrbitalInclination) correctly. Fortunately, OrbitalInclination is the only one that we need for the time
+        //   being.
+
         const majorAxis = rootObject.OrbitalSemiMajorAxis / CoordsScale;
-        const minorAxis = rootObject.OrbitalSemiMinorAxis / CoordsScale;
-        const perigee = rootObject.OrbitalPerigee / CoordsScale;
+        // const perigee = rootObject.OrbitalPerigee / CoordsScale;
+
+        // For these calcs, from Alex's spreadsheet:
+        //   Y5 ==> OrbitalPhaseAngle ==> Yaw
+        //   Y6 ==> OrbitalInclination ==> Pitch
+        //   Y7 ==> OrbitalForwardRoll ==> Roll
+        //   S9 ==> planet's angular position
+        //   T$3 ==> SemiMajorAxis
+        //   T$6 ==> OrbitalEccentricity
+        //   W$3 ==> OrbitalP ==> SemiMajorAxis * (1 - OrbitalEccentricity ^ 2)
+        //   W9 ==> OrbitalR ==> OrbitalP / (1 - OrbitalEccentricity * COS(angularPos))
+        //
+        // SemiMinorAxis ==> SQRT((1 - OrbitalEccentricity^2) * SemiMajorAxis^2)
+        //
+        // Orbital X Position ==>
+        //  Raw Formula from spreadsheet ==>
+        //  = W9*COS(RADIANS(S9))*(COS($Y$5)*COS($Y$6))+W9*SIN(RADIANS(S9))*(COS($Y$5)*SIN($Y$6)*SIN($Y$7)-SIN($Y$5)*COS($Y$7))
+        //
+        //  = OrbitalR * COS(angularPos) * (
+        //       COS(OrbitalPhaseAngle) * COS(OrbitalInclination)
+        //    )
+        //    +
+        //    OrbitalR * SIN(angularPos) * (
+        //       COS(OrbitalPhaseAngle) * SIN(OrbitalInclination) * SIN(OrbitalForwardRoll) - SIN(OrbitalPhaseAngle) * COS(OrbitalForwardRoll)
+        //    )
+        //
+        // Focal Offset (X position at angularPos == 0 minus SemiMajorAxis) ==>
+        // (note: OrbitalPhaseAngle = 0, OrbitalInclination = 0, OrbitalForwardRoll = 0)
+        //  = OrbitalR * 1 * (
+        //       1 * 1
+        //    )
+        //    +
+        //    OrbitalR * 0 * (
+        //       1 * 0 * 0 - 0 * 1
+        //    ) - SemiMajorAxis
+        //  = OrbitalR - SemiMajorAxis
+
+        const eccRemainder = 1 - rootObject.OrbitalEccentricity;
+        const eccRemainderSqrd = 1 - Math.pow(rootObject.OrbitalEccentricity, 2);
+
+        const OrbitalP = rootObject.OrbitalSemiMajorAxis * eccRemainderSqrd;
+        const OrbitalR = OrbitalP / eccRemainder;
+
+        let minorAxis = Math.sqrt(eccRemainderSqrd * Math.pow(rootObject.OrbitalSemiMajorAxis, 2));
+        minorAxis /= CoordsScale;
+
+        let focalOffset = rootObject.OrbitalSemiMajorAxis * eccRemainderSqrd / eccRemainder;
+        focalOffset -= rootObject.OrbitalSemiMajorAxis;
+        focalOffset /= CoordsScale;
+
+        // We need a child of the scenegroup to apply the orbital focus to, so that the rotation of the orbit (per
+        // Orbital Inclination) happens after the translation for focal offset.  This will cause the orbit to be rotated
+        // around the focal point rather than the translated center of the orbit.
+        let orbitalOffsetGroup = new THREE.Group();
+        orbitalOffsetGroup.name = `${rootObject.Name}-orb-offset`;
+        sceneGroup.add(orbitalOffsetGroup);
+         
+        if (focalOffset != 0) {
+            orbitalOffsetGroup.position.x = focalOffset;
+        }
 
         let objectGroup = new THREE.Group();
         objectGroup.name = `${rootObject.Name}-obj-geom`;
@@ -516,7 +583,7 @@ export class SSGRenderer {
             if (rootObject.OrbitalColor !== 'none') {
                 const orbitObject = Utils.buildOrbitalMesh(0, 0, 0, orbitCurve, rootObject.OrbitalColor ?? DEFAULT_ORBITAL_COLOR);
                 orbitObject.name = `${rootObject.Name}-orbit-geom`;
-                sceneGroup.add(orbitObject);
+                orbitalOffsetGroup.add(orbitObject);
             }
 
             if (objectGroup) {
@@ -603,20 +670,20 @@ export class SSGRenderer {
             }
         });
 
-        sceneGroup.add(objectGroup);
+        orbitalOffsetGroup.add(objectGroup);
 
-        if (perigee != 0) {
-            sceneGroup.position.x = perigee;
-        }
-
-        if (rootObject.PhaseAngle != 0) {
-            sceneGroup.rotation.order = "ZYX";
-            sceneGroup.rotation.z = Utils.degreesToRadians(rootObject.PhaseAngle);
-        }
+        // if (perigee != 0) {
+        //     sceneGroup.position.x = perigee;
+        // }
 
         if (rootObject.OrbitalInclination != 0) {
             sceneGroup.rotation.y = Utils.degreesToRadians(rootObject.OrbitalInclination);
         }
+
+        //if (rootObject.PhaseAngle != 0) {
+        //    sceneGroup.rotation.order = "ZYX";
+        //    sceneGroup.rotation.z = Utils.degreesToRadians(rootObject.PhaseAngle);
+        //}
 
         for (const childObj of rootObject.ChildObjects) {
             const childGroup = this.buildSolarSystem(childObj);

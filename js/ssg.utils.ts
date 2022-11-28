@@ -202,7 +202,7 @@ export class Utils {
     public static async downloadFileFromStream(fileName: string, contentStreamReference: any) {
         const arrayBuffer = await contentStreamReference.arrayBuffer();
         const blob = new Blob([arrayBuffer]);
-        Utils.downloadFileFromBlob(fileName, arrayBuffer);
+        Utils.downloadFileFromBlob(fileName, blob);
     }
 
     public static async downloadFileFromBlob(fileName: string, blob: Blob) {
