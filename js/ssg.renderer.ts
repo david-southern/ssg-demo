@@ -1,6 +1,6 @@
 ﻿import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
-import { Scene, Vector2, Vector3 } from 'three';
+import { Scene, Vector3 } from 'three';
 
 import { CelestialObject } from './celestial-object';
 // import { OrbitControls } from './OrbitControls';
@@ -16,25 +16,61 @@ const DEFAULT_ORBITAL_COLOR = '#999999';
 // Scale everything down to 'smallish' numbers internally.
 const CoordsScale = Constants.OneAU;
 
+/**
+ * Keplerian orbiter: advances the mean anomaly linearly in time, then solves
+ * Kepler's equation each frame to place the body on its ellipse. Position is
+ * computed relative to the FOCUS (where the gravitating parent sits), so the
+ * body sweeps equal areas in equal times — fast near periapsis, slow at apoapsis.
+ *
+ *   M(t) = M₀ + n·t                 (mean motion n = 360°/T_orbit; linear in time)
+ *   M = E − e·sin(E)                (Kepler's equation; solve for E numerically)
+ *   x = a·(cos E − e),  y = b·sin E  (orbital-plane position, focus at origin)
+ */
 class Orbiter {
+    private currentMeanAnomalyDeg: number;
+    private readonly eccentricity: number;
+
     constructor(
         public threeObject: THREE.Object3D,
-        public orbitCurve: THREE.EllipseCurve,
-        public initialAngle: number,
-        public angVelDegPerSecond: number,
+        public semiMajorAxis: number,
+        public semiMinorAxis: number,
+        initialMeanAnomalyDeg: number,
+        public meanMotionDegPerSecond: number,
     ) {
-        this.currentAngle = initialAngle;
+        this.currentMeanAnomalyDeg = initialMeanAnomalyDeg;
+
+        const bOverA = (semiMajorAxis > 0) ? (semiMinorAxis / semiMajorAxis) : 1;
+        // Clamp: b > a (degenerate input) and b == a both give circular orbit.
+        this.eccentricity = (bOverA >= 1) ? 0 : Math.sqrt(1 - bOverA * bOverA);
     }
 
-    private currentAngle: number;
-
     public updatePosition(elapsedSeconds: number) {
-        this.currentAngle += (this.angVelDegPerSecond * elapsedSeconds);
-        this.currentAngle = Utils.clampDegrees(this.currentAngle);
+        this.currentMeanAnomalyDeg += this.meanMotionDegPerSecond * elapsedSeconds;
+        this.currentMeanAnomalyDeg = Utils.clampDegrees(this.currentMeanAnomalyDeg);
 
-        const objectPosition = new Vector2();
-        this.orbitCurve.getPointAt(this.currentAngle / 360, objectPosition);
-        Utils.setPosition(this.threeObject, objectPosition.x, objectPosition.y, 0);
+        const M = Utils.degreesToRadians(this.currentMeanAnomalyDeg);
+        const E = Orbiter.solveKepler(M, this.eccentricity);
+
+        // Position relative to the focus (= parent's position = sceneGroup origin).
+        const x = this.semiMajorAxis * (Math.cos(E) - this.eccentricity);
+        const y = this.semiMinorAxis * Math.sin(E);
+
+        Utils.setPosition(this.threeObject, x, y, 0);
+    }
+
+    /**
+     * Solve M = E − e·sin(E) for E via Newton-Raphson. Converges in a handful
+     * of iterations for e < ~0.9; the loop cap is a safety net.
+     */
+    private static solveKepler(meanAnomaly: number, eccentricity: number, tolerance: number = 1e-10): number {
+        // Smith's starter (M + e·sin M) is closer than M alone for eccentric orbits.
+        let E = meanAnomaly + eccentricity * Math.sin(meanAnomaly);
+        for (let i = 0; i < 30; i++) {
+            const delta = (E - eccentricity * Math.sin(E) - meanAnomaly) / (1 - eccentricity * Math.cos(E));
+            E -= delta;
+            if (Math.abs(delta) < tolerance) break;
+        }
+        return E;
     }
 }
 
@@ -183,7 +219,8 @@ export class SSGRenderer {
 
                 const Jimp = (window as any).Jimp;
 
-                if (this.lastBGUrl != settings.BackgroundImage.URL) {
+                const urlChanged = this.lastBGUrl != settings.BackgroundImage.URL;
+                if (urlChanged) {
                     this.cachedBGImage = await Jimp.read(settings.BackgroundImage.URL);
                     this.lastBGUrl = settings.BackgroundImage.URL;
                 }
@@ -194,7 +231,11 @@ export class SSGRenderer {
                     + `${settings.BackgroundImage.Darken}:`
                     + `${settings.BackgroundImage.Blur}`;
 
-                if (newBGSettings != this.lastBGSettings) {
+                // Re-apply the texture whenever the URL changes too, not just when the
+                // image-processing settings change. Previously, switching from one nebula
+                // to another with identical post-process settings updated cachedBGImage
+                // but never pushed the new texture into the scene.
+                if (urlChanged || newBGSettings != this.lastBGSettings) {
                     this.lastBGSettings = newBGSettings;
 
                     const bgImage = this.cachedBGImage.clone();
@@ -503,94 +544,36 @@ export class SSGRenderer {
         const sceneGroup = new THREE.Group();
         sceneGroup.name = `${rootObject.Name}-root`;
 
-        // Calculate the minorAxis and focalOffset from Alex's orbital calcs spreadsheet.
-        // * Note: I'm using Alex's OrbitalX calculation to get the focal offset (the orbital X position at angularPos
-        //   == 0 minus the semi-major axis).  Alex also shows how to calculate the OrbitalY and OrbitalZ positions as
-        //   well.  For now, I'll continue using the THREEjs rotation transformations, as I already have that coded into
-        //   the Orbiter class. At some point I should switch to use Alex's position equations, as they account for all
-        //   three rotations (yaw, pitch, and roll) while my THREEjs implenetation only handles pitce
-        //   (OrbitalInclination) correctly. Fortunately, OrbitalInclination is the only one that we need for the time
-        //   being.
-
         const majorAxis = rootObject.OrbitalSemiMajorAxis / CoordsScale;
-        // const perigee = rootObject.OrbitalPerigee / CoordsScale;
-
-        // For these calcs, from Alex's spreadsheet:
-        //   Y5 ==> OrbitalPhaseAngle ==> Yaw
-        //   Y6 ==> OrbitalInclination ==> Pitch
-        //   Y7 ==> OrbitalForwardRoll ==> Roll
-        //   S9 ==> planet's angular position
-        //   T$3 ==> SemiMajorAxis
-        //   T$6 ==> OrbitalEccentricity
-        //   W$3 ==> OrbitalP ==> SemiMajorAxis * (1 - OrbitalEccentricity ^ 2)
-        //   W9 ==> OrbitalR ==> OrbitalP / (1 - OrbitalEccentricity * COS(angularPos))
-        //
-        // SemiMinorAxis ==> SQRT((1 - OrbitalEccentricity^2) * SemiMajorAxis^2)
-        //
-        // Orbital X Position ==>
-        //  Raw Formula from spreadsheet ==>
-        //  = W9*COS(RADIANS(S9))*(COS($Y$5)*COS($Y$6))+W9*SIN(RADIANS(S9))*(COS($Y$5)*SIN($Y$6)*SIN($Y$7)-SIN($Y$5)*COS($Y$7))
-        //
-        //  = OrbitalR * COS(angularPos) * (
-        //       COS(OrbitalPhaseAngle) * COS(OrbitalInclination)
-        //    )
-        //    +
-        //    OrbitalR * SIN(angularPos) * (
-        //       COS(OrbitalPhaseAngle) * SIN(OrbitalInclination) * SIN(OrbitalForwardRoll) - SIN(OrbitalPhaseAngle) * COS(OrbitalForwardRoll)
-        //    )
-        //
-        // Focal Offset (X position at angularPos == 0 minus SemiMajorAxis) ==>
-        // (note: OrbitalPhaseAngle = 0, OrbitalInclination = 0, OrbitalForwardRoll = 0)
-        //  = OrbitalR * 1 * (
-        //       1 * 1
-        //    )
-        //    +
-        //    OrbitalR * 0 * (
-        //       1 * 0 * 0 - 0 * 1
-        //    ) - SemiMajorAxis
-        //  = OrbitalR - SemiMajorAxis
-
-        const eccRemainder = 1 - rootObject.OrbitalEccentricity;
-        const eccRemainderSqrd = 1 - Math.pow(rootObject.OrbitalEccentricity, 2);
-
-        const OrbitalP = rootObject.OrbitalSemiMajorAxis * eccRemainderSqrd;
-        const OrbitalR = OrbitalP / eccRemainder;
-
-        let minorAxis = Math.sqrt(eccRemainderSqrd * Math.pow(rootObject.OrbitalSemiMajorAxis, 2));
-        minorAxis /= CoordsScale;
-
-        let focalOffset = rootObject.OrbitalSemiMajorAxis * eccRemainderSqrd / eccRemainder;
-        focalOffset -= rootObject.OrbitalSemiMajorAxis;
-        focalOffset /= CoordsScale;
-
-        // We need a child of the scenegroup to apply the orbital focus to, so that the rotation of the orbit (per
-        // Orbital Inclination) happens after the translation for focal offset.  This will cause the orbit to be rotated
-        // around the focal point rather than the translated center of the orbit.
-        let orbitalOffsetGroup = new THREE.Group();
-        orbitalOffsetGroup.name = `${rootObject.Name}-orb-offset`;
-        sceneGroup.add(orbitalOffsetGroup);
-         
-        if (focalOffset != 0) {
-            orbitalOffsetGroup.position.x = focalOffset;
-        }
+        const minorAxis = rootObject.OrbitalSemiMinorAxis / CoordsScale;
 
         let objectGroup = new THREE.Group();
         objectGroup.name = `${rootObject.Name}-obj-geom`;
 
         if (majorAxis > 0) {
-            const orbitCurve = Utils.buildOrbitalEllipse(0, 0, majorAxis, minorAxis);
+            // Place the focus at the parent's position by drawing the ellipse with
+            // its center at (-c, 0), where c = a·e is the linear eccentricity.
+            const bOverA = (majorAxis > 0) ? (minorAxis / majorAxis) : 1;
+            const eccentricity = (bOverA >= 1) ? 0 : Math.sqrt(1 - bOverA * bOverA);
+            const focalOffset = majorAxis * eccentricity;
+
+            const orbitCurve = Utils.buildOrbitalEllipse(-focalOffset, 0, majorAxis, minorAxis);
 
             if (rootObject.OrbitalColor !== 'none') {
                 const orbitObject = Utils.buildOrbitalMesh(0, 0, 0, orbitCurve, rootObject.OrbitalColor ?? DEFAULT_ORBITAL_COLOR);
                 orbitObject.name = `${rootObject.Name}-orbit-geom`;
-                orbitalOffsetGroup.add(orbitObject);
+                sceneGroup.add(orbitObject);
             }
 
-            if (objectGroup) {
-                const planetOrbiter = new Orbiter(objectGroup, orbitCurve, rootObject.InitialOrbitalAngle, rootObject.OrbitalVelocity);
-                planetOrbiter.updatePosition(0);
-                this.orbiters.push(planetOrbiter);
-            }
+            const planetOrbiter = new Orbiter(
+                objectGroup,
+                majorAxis,
+                minorAxis,
+                rootObject.InitialOrbitalAngle,
+                rootObject.OrbitalVelocity,
+            );
+            planetOrbiter.updatePosition(0);
+            this.orbiters.push(planetOrbiter);
         }
 
         SettingsManager.subscribeSettings((settings: SSGSettings) => {
@@ -670,20 +653,16 @@ export class SSGRenderer {
             }
         });
 
-        orbitalOffsetGroup.add(objectGroup);
+        sceneGroup.add(objectGroup);
 
-        // if (perigee != 0) {
-        //     sceneGroup.position.x = perigee;
-        // }
+        if (rootObject.PhaseAngle != 0) {
+            sceneGroup.rotation.order = "ZYX";
+            sceneGroup.rotation.z = Utils.degreesToRadians(rootObject.PhaseAngle);
+        }
 
         if (rootObject.OrbitalInclination != 0) {
             sceneGroup.rotation.y = Utils.degreesToRadians(rootObject.OrbitalInclination);
         }
-
-        //if (rootObject.PhaseAngle != 0) {
-        //    sceneGroup.rotation.order = "ZYX";
-        //    sceneGroup.rotation.z = Utils.degreesToRadians(rootObject.PhaseAngle);
-        //}
 
         for (const childObj of rootObject.ChildObjects) {
             const childGroup = this.buildSolarSystem(childObj);
