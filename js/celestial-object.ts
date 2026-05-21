@@ -10,7 +10,7 @@ export class CelestialObject {
     IsSelected: boolean = false;
     ChildObjects: CelestialObject[] = [];
     OrbitalSemiMajorAxis: number = 0;
-    OrbitalSemiMinorAxis: number = 0;
+    OrbitalEccentricity: number = 0;
     OrbitalVelocity: number = 0;
     InitialOrbitalAngle: number = 0;
     ObjectRadius: number = 0;

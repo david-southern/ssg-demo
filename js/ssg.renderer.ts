@@ -28,20 +28,17 @@ const CoordsScale = Constants.OneAU;
  */
 class Orbiter {
     private currentMeanAnomalyDeg: number;
-    private readonly eccentricity: number;
+    public readonly semiMinorAxis: number;
 
     constructor(
         public threeObject: THREE.Object3D,
         public semiMajorAxis: number,
-        public semiMinorAxis: number,
+        public eccentricity: number,
         initialMeanAnomalyDeg: number,
         public meanMotionDegPerSecond: number,
     ) {
         this.currentMeanAnomalyDeg = initialMeanAnomalyDeg;
-
-        const bOverA = (semiMajorAxis > 0) ? (semiMinorAxis / semiMajorAxis) : 1;
-        // Clamp: b > a (degenerate input) and b == a both give circular orbit.
-        this.eccentricity = (bOverA >= 1) ? 0 : Math.sqrt(1 - bOverA * bOverA);
+        this.semiMinorAxis = semiMajorAxis * Math.sqrt(1 - eccentricity * eccentricity);
     }
 
     public updatePosition(elapsedSeconds: number) {
@@ -545,7 +542,8 @@ export class SSGRenderer {
         sceneGroup.name = `${rootObject.Name}-root`;
 
         const majorAxis = rootObject.OrbitalSemiMajorAxis / CoordsScale;
-        const minorAxis = rootObject.OrbitalSemiMinorAxis / CoordsScale;
+        const eccentricity = rootObject.OrbitalEccentricity;
+        const minorAxis = majorAxis * Math.sqrt(1 - eccentricity * eccentricity);
 
         let objectGroup = new THREE.Group();
         objectGroup.name = `${rootObject.Name}-obj-geom`;
@@ -553,8 +551,6 @@ export class SSGRenderer {
         if (majorAxis > 0) {
             // Place the focus at the parent's position by drawing the ellipse with
             // its center at (-c, 0), where c = a·e is the linear eccentricity.
-            const bOverA = (majorAxis > 0) ? (minorAxis / majorAxis) : 1;
-            const eccentricity = (bOverA >= 1) ? 0 : Math.sqrt(1 - bOverA * bOverA);
             const focalOffset = majorAxis * eccentricity;
 
             const orbitCurve = Utils.buildOrbitalEllipse(-focalOffset, 0, majorAxis, minorAxis);
@@ -568,7 +564,7 @@ export class SSGRenderer {
             const planetOrbiter = new Orbiter(
                 objectGroup,
                 majorAxis,
-                minorAxis,
+                eccentricity,
                 rootObject.InitialOrbitalAngle,
                 rootObject.OrbitalVelocity,
             );
