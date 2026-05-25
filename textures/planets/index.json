@@ -1,0 +1,408 @@
+{
+  "generated": "2026-05-24T02:09:48.800Z",
+  "width": 512,
+  "height": 256,
+  "quality": 80,
+  "categories": [
+    {
+      "name": "Arid",
+      "textures": [
+        {
+          "name": "Arid_01",
+          "url": "Arid/Arid_01-512x256x80.webp"
+        },
+        {
+          "name": "Arid_02",
+          "url": "Arid/Arid_02-512x256x80.webp"
+        },
+        {
+          "name": "Arid_03",
+          "url": "Arid/Arid_03-512x256x80.webp"
+        },
+        {
+          "name": "Arid_04",
+          "url": "Arid/Arid_04-512x256x80.webp"
+        },
+        {
+          "name": "Arid_05",
+          "url": "Arid/Arid_05-512x256x80.webp"
+        }
+      ]
+    },
+    {
+      "name": "Barren",
+      "textures": [
+        {
+          "name": "Barren_01",
+          "url": "Barren/Barren_01-512x256x80.webp"
+        },
+        {
+          "name": "Barren_02",
+          "url": "Barren/Barren_02-512x256x80.webp"
+        },
+        {
+          "name": "Barren_03",
+          "url": "Barren/Barren_03-512x256x80.webp"
+        },
+        {
+          "name": "Barren_04",
+          "url": "Barren/Barren_04-512x256x80.webp"
+        },
+        {
+          "name": "Barren_05",
+          "url": "Barren/Barren_05-512x256x80.webp"
+        }
+      ]
+    },
+    {
+      "name": "Dusty",
+      "textures": [
+        {
+          "name": "Dusty_01",
+          "url": "Dusty/Dusty_01-512x256x80.webp"
+        },
+        {
+          "name": "Dusty_02",
+          "url": "Dusty/Dusty_02-512x256x80.webp"
+        },
+        {
+          "name": "Dusty_03",
+          "url": "Dusty/Dusty_03-512x256x80.webp"
+        },
+        {
+          "name": "Dusty_04",
+          "url": "Dusty/Dusty_04-512x256x80.webp"
+        },
+        {
+          "name": "Dusty_05",
+          "url": "Dusty/Dusty_05-512x256x80.webp"
+        }
+      ]
+    },
+    {
+      "name": "Gaseous",
+      "textures": [
+        {
+          "name": "Gaseous_01",
+          "url": "Gaseous/Gaseous_01-512x256x80.webp"
+        },
+        {
+          "name": "Gaseous_02",
+          "url": "Gaseous/Gaseous_02-512x256x80.webp"
+        },
+        {
+          "name": "Gaseous_03",
+          "url": "Gaseous/Gaseous_03-512x256x80.webp"
+        },
+        {
+          "name": "Gaseous_04",
+          "url": "Gaseous/Gaseous_04-512x256x80.webp"
+        },
+        {
+          "name": "Gaseous_05",
+          "url": "Gaseous/Gaseous_05-512x256x80.webp"
+        },
+        {
+          "name": "Gaseous_06",
+          "url": "Gaseous/Gaseous_06-512x256x80.webp"
+        },
+        {
+          "name": "Gaseous_07",
+          "url": "Gaseous/Gaseous_07-512x256x80.webp"
+        },
+        {
+          "name": "Gaseous_08",
+          "url": "Gaseous/Gaseous_08-512x256x80.webp"
+        },
+        {
+          "name": "Gaseous_09",
+          "url": "Gaseous/Gaseous_09-512x256x80.webp"
+        },
+        {
+          "name": "Gaseous_10",
+          "url": "Gaseous/Gaseous_10-512x256x80.webp"
+        },
+        {
+          "name": "Gaseous_11",
+          "url": "Gaseous/Gaseous_11-512x256x80.webp"
+        },
+        {
+          "name": "Gaseous_12",
+          "url": "Gaseous/Gaseous_12-512x256x80.webp"
+        },
+        {
+          "name": "Gaseous_13",
+          "url": "Gaseous/Gaseous_13-512x256x80.webp"
+        },
+        {
+          "name": "Gaseous_14",
+          "url": "Gaseous/Gaseous_14-512x256x80.webp"
+        },
+        {
+          "name": "Gaseous_15",
+          "url": "Gaseous/Gaseous_15-512x256x80.webp"
+        },
+        {
+          "name": "Gaseous_16",
+          "url": "Gaseous/Gaseous_16-512x256x80.webp"
+        },
+        {
+          "name": "Gaseous_17",
+          "url": "Gaseous/Gaseous_17-512x256x80.webp"
+        },
+        {
+          "name": "Gaseous_18",
+          "url": "Gaseous/Gaseous_18-512x256x80.webp"
+        },
+        {
+          "name": "Gaseous_19",
+          "url": "Gaseous/Gaseous_19-512x256x80.webp"
+        },
+        {
+          "name": "Gaseous_20",
+          "url": "Gaseous/Gaseous_20-512x256x80.webp"
+        }
+      ]
+    },
+    {
+      "name": "Grassland",
+      "textures": [
+        {
+          "name": "Grassland_01",
+          "url": "Grassland/Grassland_01-512x256x80.webp"
+        },
+        {
+          "name": "Grassland_02",
+          "url": "Grassland/Grassland_02-512x256x80.webp"
+        },
+        {
+          "name": "Grassland_03",
+          "url": "Grassland/Grassland_03-512x256x80.webp"
+        },
+        {
+          "name": "Grassland_04",
+          "url": "Grassland/Grassland_04-512x256x80.webp"
+        },
+        {
+          "name": "Grassland_05",
+          "url": "Grassland/Grassland_05-512x256x80.webp"
+        }
+      ]
+    },
+    {
+      "name": "Jungle",
+      "textures": [
+        {
+          "name": "Jungle_01",
+          "url": "Jungle/Jungle_01-512x256x80.webp"
+        },
+        {
+          "name": "Jungle_02",
+          "url": "Jungle/Jungle_02-512x256x80.webp"
+        },
+        {
+          "name": "Jungle_03",
+          "url": "Jungle/Jungle_03-512x256x80.webp"
+        },
+        {
+          "name": "Jungle_04",
+          "url": "Jungle/Jungle_04-512x256x80.webp"
+        },
+        {
+          "name": "Jungle_05",
+          "url": "Jungle/Jungle_05-512x256x80.webp"
+        }
+      ]
+    },
+    {
+      "name": "Marshy",
+      "textures": [
+        {
+          "name": "Marshy_01",
+          "url": "Marshy/Marshy_01-512x256x80.webp"
+        },
+        {
+          "name": "Marshy_02",
+          "url": "Marshy/Marshy_02-512x256x80.webp"
+        },
+        {
+          "name": "Marshy_03",
+          "url": "Marshy/Marshy_03-512x256x80.webp"
+        },
+        {
+          "name": "Marshy_04",
+          "url": "Marshy/Marshy_04-512x256x80.webp"
+        },
+        {
+          "name": "Marshy_05",
+          "url": "Marshy/Marshy_05-512x256x80.webp"
+        }
+      ]
+    },
+    {
+      "name": "Martian",
+      "textures": [
+        {
+          "name": "Martian_01",
+          "url": "Martian/Martian_01-512x256x80.webp"
+        },
+        {
+          "name": "Martian_02",
+          "url": "Martian/Martian_02-512x256x80.webp"
+        },
+        {
+          "name": "Martian_03",
+          "url": "Martian/Martian_03-512x256x80.webp"
+        },
+        {
+          "name": "Martian_04",
+          "url": "Martian/Martian_04-512x256x80.webp"
+        },
+        {
+          "name": "Martian_05",
+          "url": "Martian/Martian_05-512x256x80.webp"
+        }
+      ]
+    },
+    {
+      "name": "Methane",
+      "textures": [
+        {
+          "name": "Methane_01",
+          "url": "Methane/Methane_01-512x256x80.webp"
+        },
+        {
+          "name": "Methane_02",
+          "url": "Methane/Methane_02-512x256x80.webp"
+        },
+        {
+          "name": "Methane_03",
+          "url": "Methane/Methane_03-512x256x80.webp"
+        },
+        {
+          "name": "Methane_04",
+          "url": "Methane/Methane_04-512x256x80.webp"
+        },
+        {
+          "name": "Methane_05",
+          "url": "Methane/Methane_05-512x256x80.webp"
+        }
+      ]
+    },
+    {
+      "name": "Sandy",
+      "textures": [
+        {
+          "name": "Sandy_01",
+          "url": "Sandy/Sandy_01-512x256x80.webp"
+        },
+        {
+          "name": "Sandy_02",
+          "url": "Sandy/Sandy_02-512x256x80.webp"
+        },
+        {
+          "name": "Sandy_03",
+          "url": "Sandy/Sandy_03-512x256x80.webp"
+        },
+        {
+          "name": "Sandy_04",
+          "url": "Sandy/Sandy_04-512x256x80.webp"
+        },
+        {
+          "name": "Sandy_05",
+          "url": "Sandy/Sandy_05-512x256x80.webp"
+        }
+      ]
+    },
+    {
+      "name": "Sol",
+      "textures": [
+        { "name": "Ariel", "url": "Sol/ariel.webp" },
+        { "name": "Callisto", "url": "Sol/callisto.webp" },
+        { "name": "Ceres", "url": "Sol/ceres.webp" },
+        { "name": "Charon", "url": "Sol/charon.webp" },
+        { "name": "Dione", "url": "Sol/dione.webp" },
+        { "name": "Earth", "url": "Sol/earth.webp" },
+        { "name": "Enceladus", "url": "Sol/enceladus.webp" },
+        { "name": "Eris", "url": "Sol/eris.webp" },
+        { "name": "Europa", "url": "Sol/europa.webp" },
+        { "name": "Ganymede", "url": "Sol/ganymede.webp" },
+        { "name": "Haumea", "url": "Sol/haumea.webp" },
+        { "name": "Hyperion", "url": "Sol/hyperion.webp" },
+        { "name": "Iapetus", "url": "Sol/iapetus.webp" },
+        { "name": "Io", "url": "Sol/io.webp" },
+        { "name": "Jupiter", "url": "Sol/jupiter.webp" },
+        { "name": "Makemake", "url": "Sol/makemake.webp" },
+        { "name": "Mars", "url": "Sol/mars.webp" },
+        { "name": "Mercury", "url": "Sol/mercury.webp" },
+        { "name": "Mimas", "url": "Sol/mimas.webp" },
+        { "name": "Miranda", "url": "Sol/miranda.webp" },
+        { "name": "Moon", "url": "Sol/moon.webp" },
+        { "name": "Neptune", "url": "Sol/neptune.webp" },
+        { "name": "Oberon", "url": "Sol/oberon.webp" },
+        { "name": "Pluto", "url": "Sol/pluto.webp" },
+        { "name": "Rhea", "url": "Sol/rhea.webp" },
+        { "name": "Saturn", "url": "Sol/saturn.webp" },
+        { "name": "Saturn_ring_alpha", "url": "Sol/saturn_ring_alpha.webp" },
+        { "name": "Sun", "url": "Sol/sun.webp" },
+        { "name": "Tethys", "url": "Sol/tethys.webp" },
+        { "name": "Titan", "url": "Sol/titan.webp" },
+        { "name": "Titania", "url": "Sol/titania.webp" },
+        { "name": "Triton", "url": "Sol/triton.webp" },
+        { "name": "Umbriel", "url": "Sol/umbriel.webp" },
+        { "name": "Uranus", "url": "Sol/uranus.webp" },
+        { "name": "Venus", "url": "Sol/venus.webp" }
+      ]
+    },
+    {
+      "name": "Snowy",
+      "textures": [
+        {
+          "name": "Snowy_01",
+          "url": "Snowy/Snowy_01-512x256x80.webp"
+        },
+        {
+          "name": "Snowy_02",
+          "url": "Snowy/Snowy_02-512x256x80.webp"
+        },
+        {
+          "name": "Snowy_03",
+          "url": "Snowy/Snowy_03-512x256x80.webp"
+        },
+        {
+          "name": "Snowy_04",
+          "url": "Snowy/Snowy_04-512x256x80.webp"
+        },
+        {
+          "name": "Snowy_05",
+          "url": "Snowy/Snowy_05-512x256x80.webp"
+        }
+      ]
+    },
+    {
+      "name": "Tundra",
+      "textures": [
+        {
+          "name": "Tundra_01",
+          "url": "Tundra/Tundra_01-512x256x80.webp"
+        },
+        {
+          "name": "Tundra_02",
+          "url": "Tundra/Tundra_02-512x256x80.webp"
+        },
+        {
+          "name": "Tundra_03",
+          "url": "Tundra/Tundra_03-512x256x80.webp"
+        },
+        {
+          "name": "Tundra_04",
+          "url": "Tundra/Tundra_04-512x256x80.webp"
+        },
+        {
+          "name": "Tundra_05",
+          "url": "Tundra/Tundra_05-512x256x80.webp"
+        }
+      ]
+    }
+  ]
+}
